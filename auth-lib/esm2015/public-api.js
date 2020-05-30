@@ -1,0 +1,7 @@
+/*
+ * Public API Surface of auth-lib
+ */
+export * from './lib/auth-lib.service';
+export * from './lib/auth-lib.component';
+export * from './lib/auth-lib.module';
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoicHVibGljLWFwaS5qcyIsInNvdXJjZVJvb3QiOiJuZzovL2F1dGgtbGliLyIsInNvdXJjZXMiOlsicHVibGljLWFwaS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTs7R0FFRztBQUVILGNBQWMsd0JBQXdCLENBQUM7QUFDdkMsY0FBYywwQkFBMEIsQ0FBQztBQUN6QyxjQUFjLHVCQUF1QixDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiLypcbiAqIFB1YmxpYyBBUEkgU3VyZmFjZSBvZiBhdXRoLWxpYlxuICovXG5cbmV4cG9ydCAqIGZyb20gJy4vbGliL2F1dGgtbGliLnNlcnZpY2UnO1xuZXhwb3J0ICogZnJvbSAnLi9saWIvYXV0aC1saWIuY29tcG9uZW50JztcbmV4cG9ydCAqIGZyb20gJy4vbGliL2F1dGgtbGliLm1vZHVsZSc7XG4iXX0=

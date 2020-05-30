@@ -1,0 +1,21 @@
+{
+  "name": "auth-lib",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^9.1.9",
+    "@angular/core": "^9.1.9"
+  },
+  "dependencies": {
+    "tslib": "^1.10.0"
+  },
+  "main": "bundles/auth-lib.umd.js",
+  "module": "fesm5/auth-lib.js",
+  "es2015": "fesm2015/auth-lib.js",
+  "esm5": "esm5/auth-lib.js",
+  "esm2015": "esm2015/auth-lib.js",
+  "fesm5": "fesm5/auth-lib.js",
+  "fesm2015": "fesm2015/auth-lib.js",
+  "typings": "auth-lib.d.ts",
+  "metadata": "auth-lib.metadata.json",
+  "sideEffects": false
+}
