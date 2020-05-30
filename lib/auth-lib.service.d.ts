@@ -1,6 +1,5 @@
 import { Observable, BehaviorSubject } from 'rxjs';
 import { AuthService } from './auth.service';
-import * as i0 from "@angular/core";
 export declare class AuthApi {
     private authService;
     private successVariable;
@@ -25,6 +24,4 @@ export declare class AuthApi {
     getToken(): string;
     updateToken(): Observable<string>;
     private handleAccessData;
-    static ɵfac: i0.ɵɵFactoryDef<AuthApi, never>;
-    static ɵprov: i0.ɵɵInjectableDef<AuthApi>;
 }

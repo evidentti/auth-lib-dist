@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { AuthConfig } from './auth-lib.module';
-import * as i0 from "@angular/core";
 declare enum AuthType {
     KEYCLOAK = "keycloak",
     SIGNICAT = "signicat",
@@ -26,7 +25,5 @@ export declare class AuthService {
     private post;
     get authType(): AuthType;
     set authType(type: AuthType);
-    static ɵfac: i0.ɵɵFactoryDef<AuthService, never>;
-    static ɵprov: i0.ɵɵInjectableDef<AuthService>;
 }
 export {};

@@ -1,58 +1,43 @@
-import { ɵɵdefineComponent, ɵɵelementStart, ɵɵtext, ɵɵelementEnd, ɵsetClassMetadata, Component, InjectionToken, ɵɵdefineNgModule, ɵɵdefineInjector, ɵɵsetNgModuleScope, NgModule, ɵɵinject, ɵɵdefineInjectable, Injectable, Inject } from '@angular/core';
+import { __decorate, __param } from 'tslib';
+import { Component, InjectionToken, NgModule, Inject, ɵɵdefineInjectable, ɵɵinject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 
 var AuthComponent = /** @class */ (function () {
     function AuthComponent() {
     }
     AuthComponent.prototype.ngOnInit = function () {
     };
-    AuthComponent.ɵfac = function AuthComponent_Factory(t) { return new (t || AuthComponent)(); };
-    AuthComponent.ɵcmp = ɵɵdefineComponent({ type: AuthComponent, selectors: [["lib-auth-lib"]], decls: 2, vars: 0, template: function AuthComponent_Template(rf, ctx) { if (rf & 1) {
-            ɵɵelementStart(0, "p");
-            ɵɵtext(1, " auth-lib works! ");
-            ɵɵelementEnd();
-        } }, encapsulation: 2 });
+    AuthComponent = __decorate([
+        Component({
+            selector: 'lib-auth-lib',
+            template: "\n    <p>\n      auth-lib works!\n    </p>\n  "
+        })
+    ], AuthComponent);
     return AuthComponent;
 }());
-/*@__PURE__*/ (function () { ɵsetClassMetadata(AuthComponent, [{
-        type: Component,
-        args: [{
-                selector: 'lib-auth-lib',
-                template: "\n    <p>\n      auth-lib works!\n    </p>\n  ",
-                styles: []
-            }]
-    }], function () { return []; }, null); })();
 
 var DCS_AUTH_CONFIG = new InjectionToken('Authentication Configuration');
+var ɵ0 = { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect' };
 var AuthModule = /** @class */ (function () {
     function AuthModule() {
     }
-    AuthModule.ɵmod = ɵɵdefineNgModule({ type: AuthModule });
-    AuthModule.ɵinj = ɵɵdefineInjector({ factory: function AuthModule_Factory(t) { return new (t || AuthModule)(); }, providers: [
-            {
-                provide: DCS_AUTH_CONFIG,
-                useValue: { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect' }
-            }
-        ], imports: [[]] });
+    AuthModule = __decorate([
+        NgModule({
+            declarations: [AuthComponent],
+            imports: [],
+            providers: [
+                {
+                    provide: DCS_AUTH_CONFIG,
+                    useValue: ɵ0
+                }
+            ],
+            exports: [AuthComponent]
+        })
+    ], AuthModule);
     return AuthModule;
 }());
-(function () { (typeof ngJitMode === "undefined" || ngJitMode) && ɵɵsetNgModuleScope(AuthModule, { declarations: [AuthComponent], exports: [AuthComponent] }); })();
-/*@__PURE__*/ (function () { ɵsetClassMetadata(AuthModule, [{
-        type: NgModule,
-        args: [{
-                declarations: [AuthComponent],
-                imports: [],
-                providers: [
-                    {
-                        provide: DCS_AUTH_CONFIG,
-                        useValue: { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect' }
-                    }
-                ],
-                exports: [AuthComponent]
-            }]
-    }], null, null); })();
 
 var AUTH_TYPE = 'auth-type';
 var AuthType;
@@ -144,19 +129,19 @@ var AuthService = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    AuthService.ɵfac = function AuthService_Factory(t) { return new (t || AuthService)(ɵɵinject(HttpClient), ɵɵinject(DCS_AUTH_CONFIG)); };
-    AuthService.ɵprov = ɵɵdefineInjectable({ token: AuthService, factory: AuthService.ɵfac, providedIn: 'root' });
+    AuthService.ctorParameters = function () { return [
+        { type: HttpClient },
+        { type: undefined, decorators: [{ type: Inject, args: [DCS_AUTH_CONFIG,] }] }
+    ]; };
+    AuthService.ɵprov = ɵɵdefineInjectable({ factory: function AuthService_Factory() { return new AuthService(ɵɵinject(HttpClient), ɵɵinject(DCS_AUTH_CONFIG)); }, token: AuthService, providedIn: "root" });
+    AuthService = __decorate([
+        Injectable({
+            providedIn: 'root',
+        }),
+        __param(1, Inject(DCS_AUTH_CONFIG))
+    ], AuthService);
     return AuthService;
 }());
-/*@__PURE__*/ (function () { ɵsetClassMetadata(AuthService, [{
-        type: Injectable,
-        args: [{
-                providedIn: 'root',
-            }]
-    }], function () { return [{ type: HttpClient }, { type: undefined, decorators: [{
-                type: Inject,
-                args: [DCS_AUTH_CONFIG]
-            }] }]; }, null); })();
 
 var KEYCLOAK = 'KEYCLOAK';
 var CAPTCHA = 'CAPTCHA';
@@ -337,16 +322,17 @@ var AuthApi = /** @class */ (function () {
         }
         return Boolean(accessData && accessData.accessToken && accessData.refreshToken);
     };
-    AuthApi.ɵfac = function AuthApi_Factory(t) { return new (t || AuthApi)(ɵɵinject(AuthService)); };
-    AuthApi.ɵprov = ɵɵdefineInjectable({ token: AuthApi, factory: AuthApi.ɵfac, providedIn: 'root' });
+    AuthApi.ctorParameters = function () { return [
+        { type: AuthService }
+    ]; };
+    AuthApi.ɵprov = ɵɵdefineInjectable({ factory: function AuthApi_Factory() { return new AuthApi(ɵɵinject(AuthService)); }, token: AuthApi, providedIn: "root" });
+    AuthApi = __decorate([
+        Injectable({
+            providedIn: 'root'
+        })
+    ], AuthApi);
     return AuthApi;
 }());
-/*@__PURE__*/ (function () { ɵsetClassMetadata(AuthApi, [{
-        type: Injectable,
-        args: [{
-                providedIn: 'root'
-            }]
-    }], function () { return [{ type: AuthService }]; }, null); })();
 
 /*
  * Public API Surface of auth-lib
@@ -356,5 +342,5 @@ var AuthApi = /** @class */ (function () {
  * Generated bundle index. Do not edit.
  */
 
-export { AuthApi, AuthComponent, AuthModule, DCS_AUTH_CONFIG };
+export { AuthApi, AuthComponent, AuthModule, DCS_AUTH_CONFIG, ɵ0, AuthService as ɵa };
 //# sourceMappingURL=auth-lib.js.map

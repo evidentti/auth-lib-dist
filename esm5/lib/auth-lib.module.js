@@ -1,33 +1,26 @@
+import { __decorate } from "tslib";
 import { NgModule, InjectionToken } from '@angular/core';
 import { AuthComponent } from './auth-lib.component';
-import * as i0 from "@angular/core";
 export var DCS_AUTH_CONFIG = new InjectionToken('Authentication Configuration');
+var ɵ0 = { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect' };
 var AuthModule = /** @class */ (function () {
     function AuthModule() {
     }
-    AuthModule.ɵmod = i0.ɵɵdefineNgModule({ type: AuthModule });
-    AuthModule.ɵinj = i0.ɵɵdefineInjector({ factory: function AuthModule_Factory(t) { return new (t || AuthModule)(); }, providers: [
-            {
-                provide: DCS_AUTH_CONFIG,
-                useValue: { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect' }
-            }
-        ], imports: [[]] });
+    AuthModule = __decorate([
+        NgModule({
+            declarations: [AuthComponent],
+            imports: [],
+            providers: [
+                {
+                    provide: DCS_AUTH_CONFIG,
+                    useValue: ɵ0
+                }
+            ],
+            exports: [AuthComponent]
+        })
+    ], AuthModule);
     return AuthModule;
 }());
 export { AuthModule };
-(function () { (typeof ngJitMode === "undefined" || ngJitMode) && i0.ɵɵsetNgModuleScope(AuthModule, { declarations: [AuthComponent], exports: [AuthComponent] }); })();
-/*@__PURE__*/ (function () { i0.ɵsetClassMetadata(AuthModule, [{
-        type: NgModule,
-        args: [{
-                declarations: [AuthComponent],
-                imports: [],
-                providers: [
-                    {
-                        provide: DCS_AUTH_CONFIG,
-                        useValue: { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect' }
-                    }
-                ],
-                exports: [AuthComponent]
-            }]
-    }], null, null); })();
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXV0aC1saWIubW9kdWxlLmpzIiwic291cmNlUm9vdCI6Im5nOi8vYXV0aC1saWIvIiwic291cmNlcyI6WyJsaWIvYXV0aC1saWIubW9kdWxlLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBRSxRQUFRLEVBQUUsY0FBYyxFQUFFLE1BQU0sZUFBZSxDQUFDO0FBQ3pELE9BQU8sRUFBRSxhQUFhLEVBQUUsTUFBTSxzQkFBc0IsQ0FBQzs7QUFRckQsTUFBTSxDQUFDLElBQU0sZUFBZSxHQUFHLElBQUksY0FBYyxDQUFhLDhCQUE4QixDQUFDLENBQUM7QUFFOUY7SUFBQTtLQVcyQjtrREFBZCxVQUFVO3VHQUFWLFVBQVUsbUJBUlY7WUFDVDtnQkFDRSxPQUFPLEVBQUUsZUFBZTtnQkFDeEIsUUFBUSxFQUFFLEVBQUUsaUJBQWlCLEVBQUUsY0FBYyxFQUFFLFVBQVUsRUFBRSxTQUFTLEVBQUUsV0FBVyxFQUFFLFVBQVUsRUFBRTthQUNoRztTQUNGLFlBTlEsRUFBRTtxQkFiYjtDQXNCMkIsQUFYM0IsSUFXMkI7U0FBZCxVQUFVO3dGQUFWLFVBQVUsbUJBVk4sYUFBYSxhQVFsQixhQUFhO2tEQUVaLFVBQVU7Y0FYdEIsUUFBUTtlQUFDO2dCQUNSLFlBQVksRUFBRSxDQUFDLGFBQWEsQ0FBQztnQkFDN0IsT0FBTyxFQUFFLEVBQUU7Z0JBQ1gsU0FBUyxFQUFFO29CQUNUO3dCQUNFLE9BQU8sRUFBRSxlQUFlO3dCQUN4QixRQUFRLEVBQUUsRUFBRSxpQkFBaUIsRUFBRSxjQUFjLEVBQUUsVUFBVSxFQUFFLFNBQVMsRUFBRSxXQUFXLEVBQUUsVUFBVSxFQUFFO3FCQUNoRztpQkFDRjtnQkFDRCxPQUFPLEVBQUUsQ0FBQyxhQUFhLENBQUM7YUFDekIiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBOZ01vZHVsZSwgSW5qZWN0aW9uVG9rZW4gfSBmcm9tICdAYW5ndWxhci9jb3JlJztcbmltcG9ydCB7IEF1dGhDb21wb25lbnQgfSBmcm9tICcuL2F1dGgtbGliLmNvbXBvbmVudCc7XG5cbmV4cG9ydCBpbnRlcmZhY2UgQXV0aENvbmZpZyB7XG4gIGF1dGhlbnRpY2F0aW9uVXJsOiBzdHJpbmc7XG4gIHJlZnJlc2hVcmw6IHN0cmluZztcbiAgcmVkaXJlY3RVcmw6IHN0cmluZztcbn1cblxuZXhwb3J0IGNvbnN0IERDU19BVVRIX0NPTkZJRyA9IG5ldyBJbmplY3Rpb25Ub2tlbjxBdXRoQ29uZmlnPignQXV0aGVudGljYXRpb24gQ29uZmlndXJhdGlvbicpO1xuXG5ATmdNb2R1bGUoe1xuICBkZWNsYXJhdGlvbnM6IFtBdXRoQ29tcG9uZW50XSxcbiAgaW1wb3J0czogW10sXG4gIHByb3ZpZGVyczogW1xuICAgIHtcbiAgICAgIHByb3ZpZGU6IERDU19BVVRIX0NPTkZJRyxcbiAgICAgIHVzZVZhbHVlOiB7IGF1dGhlbnRpY2F0aW9uVXJsOiAnYXV0aGVudGljYXRlJywgcmVmcmVzaFVybDogJ3JlZnJlc2gnLCByZWRpcmVjdFVybDogJ3JlZGlyZWN0JyB9XG4gICAgfVxuICBdLFxuICBleHBvcnRzOiBbQXV0aENvbXBvbmVudF1cbn0pXG5leHBvcnQgY2xhc3MgQXV0aE1vZHVsZSB7IH1cbiJdfQ==
+export { ɵ0 };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXV0aC1saWIubW9kdWxlLmpzIiwic291cmNlUm9vdCI6Im5nOi8vYXV0aC1saWIvIiwic291cmNlcyI6WyJsaWIvYXV0aC1saWIubW9kdWxlLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7QUFBQSxPQUFPLEVBQUUsUUFBUSxFQUFFLGNBQWMsRUFBRSxNQUFNLGVBQWUsQ0FBQztBQUN6RCxPQUFPLEVBQUUsYUFBYSxFQUFFLE1BQU0sc0JBQXNCLENBQUM7QUFRckQsTUFBTSxDQUFDLElBQU0sZUFBZSxHQUFHLElBQUksY0FBYyxDQUFhLDhCQUE4QixDQUFDLENBQUM7U0FROUUsRUFBRSxpQkFBaUIsRUFBRSxjQUFjLEVBQUUsVUFBVSxFQUFFLFNBQVMsRUFBRSxXQUFXLEVBQUUsVUFBVSxFQUFFO0FBS3JHO0lBQUE7SUFBMEIsQ0FBQztJQUFkLFVBQVU7UUFYdEIsUUFBUSxDQUFDO1lBQ1IsWUFBWSxFQUFFLENBQUMsYUFBYSxDQUFDO1lBQzdCLE9BQU8sRUFBRSxFQUFFO1lBQ1gsU0FBUyxFQUFFO2dCQUNUO29CQUNFLE9BQU8sRUFBRSxlQUFlO29CQUN4QixRQUFRLElBQXVGO2lCQUNoRzthQUNGO1lBQ0QsT0FBTyxFQUFFLENBQUMsYUFBYSxDQUFDO1NBQ3pCLENBQUM7T0FDVyxVQUFVLENBQUk7SUFBRCxpQkFBQztDQUFBLEFBQTNCLElBQTJCO1NBQWQsVUFBVSIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IE5nTW9kdWxlLCBJbmplY3Rpb25Ub2tlbiB9IGZyb20gJ0Bhbmd1bGFyL2NvcmUnO1xuaW1wb3J0IHsgQXV0aENvbXBvbmVudCB9IGZyb20gJy4vYXV0aC1saWIuY29tcG9uZW50JztcblxuZXhwb3J0IGludGVyZmFjZSBBdXRoQ29uZmlnIHtcbiAgYXV0aGVudGljYXRpb25Vcmw6IHN0cmluZztcbiAgcmVmcmVzaFVybDogc3RyaW5nO1xuICByZWRpcmVjdFVybDogc3RyaW5nO1xufVxuXG5leHBvcnQgY29uc3QgRENTX0FVVEhfQ09ORklHID0gbmV3IEluamVjdGlvblRva2VuPEF1dGhDb25maWc+KCdBdXRoZW50aWNhdGlvbiBDb25maWd1cmF0aW9uJyk7XG5cbkBOZ01vZHVsZSh7XG4gIGRlY2xhcmF0aW9uczogW0F1dGhDb21wb25lbnRdLFxuICBpbXBvcnRzOiBbXSxcbiAgcHJvdmlkZXJzOiBbXG4gICAge1xuICAgICAgcHJvdmlkZTogRENTX0FVVEhfQ09ORklHLFxuICAgICAgdXNlVmFsdWU6IHsgYXV0aGVudGljYXRpb25Vcmw6ICdhdXRoZW50aWNhdGUnLCByZWZyZXNoVXJsOiAncmVmcmVzaCcsIHJlZGlyZWN0VXJsOiAncmVkaXJlY3QnIH1cbiAgICB9XG4gIF0sXG4gIGV4cG9ydHM6IFtBdXRoQ29tcG9uZW50XVxufSlcbmV4cG9ydCBjbGFzcyBBdXRoTW9kdWxlIHsgfVxuIl19

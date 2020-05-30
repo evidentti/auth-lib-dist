@@ -1,5 +1,5 @@
 /**
  * Generated bundle index. Do not edit.
  */
-/// <amd-module name="auth-lib" />
 export * from './public-api';
+export { AuthService as ɵa } from './lib/auth.service';
