@@ -268,11 +268,18 @@ let AuthApi = class AuthApi {
     }
     getToken() {
         console.log('[AuthApi]', 'getToken');
-        return null;
+        return this.accessToken;
     }
     updateToken() {
         console.log('[AuthApi]', 'updateToken');
-        return of(null);
+        return new Observable((observer) => {
+            this.authService.refresh(this.refreshToken).subscribe((accessToken) => {
+                console.log('[AuthApi]', 'updateToken', 'response', accessToken);
+                this.accessToken = accessToken;
+                observer.next(accessToken);
+                observer.complete();
+            });
+        });
     }
     handleAccessData(accessData) {
         console.log('[AuthApi]', 'handleAccessData', accessData);
@@ -285,10 +292,6 @@ let AuthApi = class AuthApi {
             this.refreshToken = null;
         }
         return Boolean(accessData && accessData.accessToken && accessData.refreshToken);
-    }
-    first() {
-        console.log('[AuthApi]', 'first');
-        return 'first';
     }
 };
 AuthApi.ctorParameters = () => [

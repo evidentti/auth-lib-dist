@@ -515,11 +515,19 @@
         };
         AuthApi.prototype.getToken = function () {
             console.log('[AuthApi]', 'getToken');
-            return null;
+            return this.accessToken;
         };
         AuthApi.prototype.updateToken = function () {
+            var _this = this;
             console.log('[AuthApi]', 'updateToken');
-            return rxjs.of(null);
+            return new rxjs.Observable(function (observer) {
+                _this.authService.refresh(_this.refreshToken).subscribe(function (accessToken) {
+                    console.log('[AuthApi]', 'updateToken', 'response', accessToken);
+                    _this.accessToken = accessToken;
+                    observer.next(accessToken);
+                    observer.complete();
+                });
+            });
         };
         AuthApi.prototype.handleAccessData = function (accessData) {
             console.log('[AuthApi]', 'handleAccessData', accessData);
@@ -532,10 +540,6 @@
                 this.refreshToken = null;
             }
             return Boolean(accessData && accessData.accessToken && accessData.refreshToken);
-        };
-        AuthApi.prototype.first = function () {
-            console.log('[AuthApi]', 'first');
-            return 'first';
         };
         AuthApi.ctorParameters = function () { return [
             { type: AuthService }

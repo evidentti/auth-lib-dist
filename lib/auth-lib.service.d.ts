@@ -24,5 +24,4 @@ export declare class AuthApi {
     getToken(): string;
     updateToken(): Observable<string>;
     private handleAccessData;
-    first(): string;
 }
