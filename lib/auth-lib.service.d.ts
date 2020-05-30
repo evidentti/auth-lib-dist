@@ -1,5 +1,6 @@
 import { Observable, BehaviorSubject } from 'rxjs';
 import { AuthService } from './auth.service';
+import * as i0 from "@angular/core";
 export declare class AuthApi {
     private authService;
     private successVariable;
@@ -17,11 +18,13 @@ export declare class AuthApi {
     get type(): string;
     set type(type: string);
     constructor(authService: AuthService);
-    init(): Observable<boolean>;
+    init(urlParams?: string): Observable<boolean>;
     initLogin(): Observable<boolean>;
     codeLogin(secureCode: string): Observable<boolean>;
     captchaLogin(): Observable<boolean>;
     getToken(): string;
     updateToken(): Observable<string>;
     private handleAccessData;
+    static ɵfac: i0.ɵɵFactoryDef<AuthApi, never>;
+    static ɵprov: i0.ɵɵInjectableDef<AuthApi>;
 }
