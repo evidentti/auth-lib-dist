@@ -1,6 +1,6 @@
 import { __decorate, __param } from 'tslib';
 import { Component, InjectionToken, NgModule, Inject, ɵɵdefineInjectable, ɵɵinject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
@@ -19,7 +19,7 @@ var AuthComponent = /** @class */ (function () {
 }());
 
 var DCS_AUTH_CONFIG = new InjectionToken('Authentication Configuration');
-var ɵ0 = { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect' };
+var ɵ0 = { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect', defaultType: 'keycloak' };
 var AuthModule = /** @class */ (function () {
     function AuthModule() {
     }
@@ -40,13 +40,6 @@ var AuthModule = /** @class */ (function () {
 }());
 
 var AUTH_TYPE = 'auth-type';
-var AuthType;
-(function (AuthType) {
-    AuthType["KEYCLOAK"] = "keycloak";
-    AuthType["SIGNICAT"] = "signicat";
-    AuthType["VEPA"] = "vepa";
-    AuthType["CAPTCHA"] = "captcha";
-})(AuthType || (AuthType = {}));
 var AuthService = /** @class */ (function () {
     function AuthService(httpClient, config) {
         this.httpClient = httpClient;
@@ -67,7 +60,7 @@ var AuthService = /** @class */ (function () {
         console.log('[AuthService]', 'signicat');
         if (params && params.state) {
             params.uri = this.config.redirectUrl;
-            this.authType = AuthType.SIGNICAT;
+            this.authType = this.authTypes.SIGNICAT;
             var body = { code: params.code, uri: params.uri, state: params.state };
             return this.post(body);
         }
@@ -78,7 +71,7 @@ var AuthService = /** @class */ (function () {
     AuthService.prototype.vepa = function (params) {
         console.log('[AuthService]', 'vepa');
         if (params.s0 && params.s1 && params.s2 && params.s3 && params.state) {
-            this.authType = AuthType.VEPA;
+            this.authType = this.authTypes.VEPA;
             return this.post(params);
         }
         else {
@@ -89,7 +82,7 @@ var AuthService = /** @class */ (function () {
         console.log('[AuthService]', 'keycloak');
         if (params && params.state) {
             params.uri = this.config.redirectUrl;
-            this.authType = AuthType.KEYCLOAK;
+            this.authType = this.authTypes.KEYCLOAK;
             return this.post(params);
         }
         else {
@@ -99,7 +92,7 @@ var AuthService = /** @class */ (function () {
     AuthService.prototype.captcha = function (params) {
         console.log('[AuthService]', 'captcha');
         if (params.token) {
-            this.authType = AuthType.CAPTCHA;
+            this.authType = this.authTypes.CAPTCHA;
             var token = params.token;
             return this.post({ token: token });
         }
@@ -133,7 +126,12 @@ var AuthService = /** @class */ (function () {
     });
     Object.defineProperty(AuthService.prototype, "authTypes", {
         get: function () {
-            return AuthType;
+            return {
+                KEYCLOAK: 'keycloak',
+                SIGNICAT: 'signicat',
+                VEPA: 'vepa',
+                CAPTCHA: 'captcha'
+            };
         },
         enumerable: true,
         configurable: true
@@ -153,10 +151,11 @@ var AuthService = /** @class */ (function () {
 }());
 
 var AuthApi = /** @class */ (function () {
-    function AuthApi(authService) {
+    function AuthApi(authService, config) {
         this.authService = authService;
+        this.config = config;
         console.log('[AuthApi]', 'constructor');
-        this.type = AuthType.KEYCLOAK;
+        this.type = this.config.defaultType;
     }
     Object.defineProperty(AuthApi.prototype, "success", {
         get: function () {
@@ -221,15 +220,18 @@ var AuthApi = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    AuthApi.prototype.init = function (type, urlParams) {
+    AuthApi.prototype.init = function (type, urlParams, captchaToken) {
         console.log('[AuthApi]', 'init', type, urlParams);
+        if (type) {
+            this.type = type;
+        }
         var code = urlParams && new URLSearchParams(urlParams).get('code');
         console.log('[AuthApi]', 'CODE', code);
-        if (this.type !== AuthType.CAPTCHA && code) {
+        if (this.type !== this.authTypes().CAPTCHA && code) {
             return this.codeLogin(code);
         }
-        else if (this.type === AuthType.CAPTCHA) {
-            return this.captchaLogin();
+        else if (this.type === this.authTypes().CAPTCHA) {
+            return this.captchaLogin(captchaToken);
         }
         else {
             return this.initLogin();
@@ -240,7 +242,7 @@ var AuthApi = /** @class */ (function () {
         console.log('[AuthApi]', 'initLogin');
         return new Observable(function (observer) {
             switch (_this.type) {
-                case AuthType.KEYCLOAK:
+                case _this.authTypes().KEYCLOAK:
                     var keycloakParams = {
                         state: 'init'
                     };
@@ -266,7 +268,7 @@ var AuthApi = /** @class */ (function () {
         console.log('[AuthApi]', 'codeLogin');
         return new Observable(function (observer) {
             switch (_this.type) {
-                case AuthType.KEYCLOAK:
+                case _this.authTypes().KEYCLOAK:
                     var keycloakParams = {
                         state: 'init',
                         code: secureCode
@@ -286,9 +288,20 @@ var AuthApi = /** @class */ (function () {
             }
         });
     };
-    AuthApi.prototype.captchaLogin = function () {
-        console.log('[AuthApi]', 'captchaLogin');
-        return of(null);
+    AuthApi.prototype.captchaLogin = function (secret) {
+        var _this = this;
+        console.log('[AuthApi]', 'captchaLogin', secret);
+        return new Observable(function (observer) {
+            var captchaParams = {
+                token: secret
+            };
+            _this.authService.captcha(captchaParams).subscribe(function (accessData) {
+                console.log('[AuthApi]', 'captcha', 'response', accessData);
+                _this.success = _this.handleAccessData(accessData);
+                observer.next(_this.success);
+                observer.complete();
+            });
+        });
     };
     AuthApi.prototype.getToken = function () {
         console.log('[AuthApi]', 'getToken');
@@ -306,6 +319,10 @@ var AuthApi = /** @class */ (function () {
             });
         });
     };
+    AuthApi.prototype.authTypes = function () {
+        console.log('[AuthApi]', 'authTypes');
+        return this.authService.authTypes;
+    };
     AuthApi.prototype.handleAccessData = function (accessData) {
         console.log('[AuthApi]', 'handleAccessData', accessData);
         if (accessData) {
@@ -319,13 +336,15 @@ var AuthApi = /** @class */ (function () {
         return Boolean(accessData && accessData.accessToken && accessData.refreshToken);
     };
     AuthApi.ctorParameters = function () { return [
-        { type: AuthService }
+        { type: AuthService },
+        { type: undefined, decorators: [{ type: Inject, args: [DCS_AUTH_CONFIG,] }] }
     ]; };
-    AuthApi.ɵprov = ɵɵdefineInjectable({ factory: function AuthApi_Factory() { return new AuthApi(ɵɵinject(AuthService)); }, token: AuthApi, providedIn: "root" });
+    AuthApi.ɵprov = ɵɵdefineInjectable({ factory: function AuthApi_Factory() { return new AuthApi(ɵɵinject(AuthService), ɵɵinject(DCS_AUTH_CONFIG)); }, token: AuthApi, providedIn: "root" });
     AuthApi = __decorate([
         Injectable({
             providedIn: 'root'
-        })
+        }),
+        __param(1, Inject(DCS_AUTH_CONFIG))
     ], AuthApi);
     return AuthApi;
 }());

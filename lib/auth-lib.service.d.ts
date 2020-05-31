@@ -1,7 +1,9 @@
 import { Observable, BehaviorSubject } from 'rxjs';
-import { AuthService, AuthType } from './auth.service';
+import { AuthService } from './auth.service';
+import { AuthConfig, AuthTypes } from './auth-lib.module';
 export declare class AuthApi {
     private authService;
+    private config;
     private type;
     private successVar;
     private watchSuccessVar;
@@ -14,12 +16,13 @@ export declare class AuthApi {
     private set accessToken(value);
     private get refreshToken();
     private set refreshToken(value);
-    constructor(authService: AuthService);
-    init(type: AuthType, urlParams?: string): Observable<boolean>;
+    constructor(authService: AuthService, config: AuthConfig);
+    init(type?: string, urlParams?: string, captchaToken?: string): Observable<boolean>;
     initLogin(): Observable<boolean>;
     codeLogin(secureCode: string): Observable<boolean>;
-    captchaLogin(): Observable<boolean>;
+    captchaLogin(secret: string): Observable<boolean>;
     getToken(): string;
     updateToken(): Observable<string>;
+    authTypes(): AuthTypes;
     private handleAccessData;
 }

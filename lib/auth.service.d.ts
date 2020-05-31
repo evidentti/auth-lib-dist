@@ -1,17 +1,6 @@
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { AuthConfig } from './auth-lib.module';
-export declare enum AuthType {
-    KEYCLOAK = "keycloak",
-    SIGNICAT = "signicat",
-    VEPA = "vepa",
-    CAPTCHA = "captcha"
-}
-export interface AccessData {
-    accessToken?: string;
-    refreshToken?: string;
-    redirect?: string;
-}
+import { AuthConfig, AccessData, AuthTypes } from './auth-lib.module';
 export declare class AuthService {
     protected httpClient: HttpClient;
     private config;
@@ -23,7 +12,7 @@ export declare class AuthService {
     captcha(params: any): Observable<AccessData>;
     refresh(token: string): Observable<string>;
     private post;
-    get authType(): AuthType;
-    set authType(type: AuthType);
-    get authTypes(): typeof AuthType;
+    get authType(): string;
+    set authType(type: string);
+    get authTypes(): AuthTypes;
 }

@@ -1,6 +1,6 @@
 import { __decorate, __param } from 'tslib';
 import { Component, InjectionToken, NgModule, Inject, ɵɵdefineInjectable, ɵɵinject, Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 
@@ -21,7 +21,7 @@ AuthComponent = __decorate([
 ], AuthComponent);
 
 const DCS_AUTH_CONFIG = new InjectionToken('Authentication Configuration');
-const ɵ0 = { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect' };
+const ɵ0 = { authenticationUrl: 'authenticate', refreshUrl: 'refresh', redirectUrl: 'redirect', defaultType: 'keycloak' };
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
@@ -39,13 +39,6 @@ AuthModule = __decorate([
 ], AuthModule);
 
 const AUTH_TYPE = 'auth-type';
-var AuthType;
-(function (AuthType) {
-    AuthType["KEYCLOAK"] = "keycloak";
-    AuthType["SIGNICAT"] = "signicat";
-    AuthType["VEPA"] = "vepa";
-    AuthType["CAPTCHA"] = "captcha";
-})(AuthType || (AuthType = {}));
 let AuthService = class AuthService {
     constructor(httpClient, config) {
         this.httpClient = httpClient;
@@ -66,7 +59,7 @@ let AuthService = class AuthService {
         console.log('[AuthService]', 'signicat');
         if (params && params.state) {
             params.uri = this.config.redirectUrl;
-            this.authType = AuthType.SIGNICAT;
+            this.authType = this.authTypes.SIGNICAT;
             const body = { code: params.code, uri: params.uri, state: params.state };
             return this.post(body);
         }
@@ -77,7 +70,7 @@ let AuthService = class AuthService {
     vepa(params) {
         console.log('[AuthService]', 'vepa');
         if (params.s0 && params.s1 && params.s2 && params.s3 && params.state) {
-            this.authType = AuthType.VEPA;
+            this.authType = this.authTypes.VEPA;
             return this.post(params);
         }
         else {
@@ -88,7 +81,7 @@ let AuthService = class AuthService {
         console.log('[AuthService]', 'keycloak');
         if (params && params.state) {
             params.uri = this.config.redirectUrl;
-            this.authType = AuthType.KEYCLOAK;
+            this.authType = this.authTypes.KEYCLOAK;
             return this.post(params);
         }
         else {
@@ -98,7 +91,7 @@ let AuthService = class AuthService {
     captcha(params) {
         console.log('[AuthService]', 'captcha');
         if (params.token) {
-            this.authType = AuthType.CAPTCHA;
+            this.authType = this.authTypes.CAPTCHA;
             const token = params.token;
             return this.post({ token });
         }
@@ -127,7 +120,12 @@ let AuthService = class AuthService {
         sessionStorage.setItem(AUTH_TYPE, type);
     }
     get authTypes() {
-        return AuthType;
+        return {
+            KEYCLOAK: 'keycloak',
+            SIGNICAT: 'signicat',
+            VEPA: 'vepa',
+            CAPTCHA: 'captcha'
+        };
     }
 };
 AuthService.ctorParameters = () => [
@@ -143,10 +141,11 @@ AuthService = __decorate([
 ], AuthService);
 
 let AuthApi = class AuthApi {
-    constructor(authService) {
+    constructor(authService, config) {
         this.authService = authService;
+        this.config = config;
         console.log('[AuthApi]', 'constructor');
-        this.type = AuthType.KEYCLOAK;
+        this.type = this.config.defaultType;
     }
     get success() {
         return this.successVar;
@@ -195,15 +194,18 @@ let AuthApi = class AuthApi {
             sessionStorage.removeItem('refreshToken');
         }
     }
-    init(type, urlParams) {
+    init(type, urlParams, captchaToken) {
         console.log('[AuthApi]', 'init', type, urlParams);
+        if (type) {
+            this.type = type;
+        }
         const code = urlParams && new URLSearchParams(urlParams).get('code');
         console.log('[AuthApi]', 'CODE', code);
-        if (this.type !== AuthType.CAPTCHA && code) {
+        if (this.type !== this.authTypes().CAPTCHA && code) {
             return this.codeLogin(code);
         }
-        else if (this.type === AuthType.CAPTCHA) {
-            return this.captchaLogin();
+        else if (this.type === this.authTypes().CAPTCHA) {
+            return this.captchaLogin(captchaToken);
         }
         else {
             return this.initLogin();
@@ -213,7 +215,7 @@ let AuthApi = class AuthApi {
         console.log('[AuthApi]', 'initLogin');
         return new Observable((observer) => {
             switch (this.type) {
-                case AuthType.KEYCLOAK:
+                case this.authTypes().KEYCLOAK:
                     const keycloakParams = {
                         state: 'init'
                     };
@@ -238,7 +240,7 @@ let AuthApi = class AuthApi {
         console.log('[AuthApi]', 'codeLogin');
         return new Observable((observer) => {
             switch (this.type) {
-                case AuthType.KEYCLOAK:
+                case this.authTypes().KEYCLOAK:
                     const keycloakParams = {
                         state: 'init',
                         code: secureCode
@@ -258,9 +260,19 @@ let AuthApi = class AuthApi {
             }
         });
     }
-    captchaLogin() {
-        console.log('[AuthApi]', 'captchaLogin');
-        return of(null);
+    captchaLogin(secret) {
+        console.log('[AuthApi]', 'captchaLogin', secret);
+        return new Observable((observer) => {
+            const captchaParams = {
+                token: secret
+            };
+            this.authService.captcha(captchaParams).subscribe((accessData) => {
+                console.log('[AuthApi]', 'captcha', 'response', accessData);
+                this.success = this.handleAccessData(accessData);
+                observer.next(this.success);
+                observer.complete();
+            });
+        });
     }
     getToken() {
         console.log('[AuthApi]', 'getToken');
@@ -277,6 +289,10 @@ let AuthApi = class AuthApi {
             });
         });
     }
+    authTypes() {
+        console.log('[AuthApi]', 'authTypes');
+        return this.authService.authTypes;
+    }
     handleAccessData(accessData) {
         console.log('[AuthApi]', 'handleAccessData', accessData);
         if (accessData) {
@@ -291,13 +307,15 @@ let AuthApi = class AuthApi {
     }
 };
 AuthApi.ctorParameters = () => [
-    { type: AuthService }
+    { type: AuthService },
+    { type: undefined, decorators: [{ type: Inject, args: [DCS_AUTH_CONFIG,] }] }
 ];
-AuthApi.ɵprov = ɵɵdefineInjectable({ factory: function AuthApi_Factory() { return new AuthApi(ɵɵinject(AuthService)); }, token: AuthApi, providedIn: "root" });
+AuthApi.ɵprov = ɵɵdefineInjectable({ factory: function AuthApi_Factory() { return new AuthApi(ɵɵinject(AuthService), ɵɵinject(DCS_AUTH_CONFIG)); }, token: AuthApi, providedIn: "root" });
 AuthApi = __decorate([
     Injectable({
         providedIn: 'root'
-    })
+    }),
+    __param(1, Inject(DCS_AUTH_CONFIG))
 ], AuthApi);
 
 /*
