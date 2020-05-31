@@ -54,7 +54,8 @@ let AuthService = class AuthService {
     }
     oauth(params) {
         console.log('[AuthService]', 'oauth');
-        if (params.state && params.uri) {
+        if (params && params.state) {
+            params.uri = this.config.redirectUrl;
             return this.post(params);
         }
         else {
@@ -63,7 +64,8 @@ let AuthService = class AuthService {
     }
     signicat(params) {
         console.log('[AuthService]', 'signicat');
-        if (params.state && params.uri) {
+        if (params && params.state) {
+            params.uri = this.config.redirectUrl;
             this.authType = AuthType.SIGNICAT;
             const body = { code: params.code, uri: params.uri, state: params.state };
             return this.post(body);
@@ -124,6 +126,9 @@ let AuthService = class AuthService {
     set authType(type) {
         sessionStorage.setItem(AUTH_TYPE, type);
     }
+    get authTypes() {
+        return AuthType;
+    }
 };
 AuthService.ctorParameters = () => [
     { type: HttpClient },
@@ -137,76 +142,67 @@ AuthService = __decorate([
     __param(1, Inject(DCS_AUTH_CONFIG))
 ], AuthService);
 
-const KEYCLOAK = 'KEYCLOAK';
-const CAPTCHA = 'CAPTCHA';
 let AuthApi = class AuthApi {
     constructor(authService) {
         this.authService = authService;
         console.log('[AuthApi]', 'constructor');
-        this.type = KEYCLOAK;
+        this.type = AuthType.KEYCLOAK;
     }
     get success() {
-        return this.successVariable;
+        return this.successVar;
     }
     set success(success) {
-        if (success !== this.successVariable) {
-            this.successVariable = success;
-            if (this.watchSuccessVariable) {
+        if (success !== this.successVar) {
+            this.successVar = success;
+            if (this.watchSuccessVar) {
                 this.watchSuccess.next(this.success);
             }
         }
     }
     get watchSuccess() {
-        if (!this.watchSuccessVariable) {
-            this.watchSuccessVariable = new BehaviorSubject(this.success);
+        if (!this.watchSuccessVar) {
+            this.watchSuccessVar = new BehaviorSubject(this.success);
         }
-        return this.watchSuccessVariable;
+        return this.watchSuccessVar;
     }
     get accessToken() {
-        if (!this.accessTokenVariable) {
-            this.accessTokenVariable = sessionStorage.getItem('accessToken');
+        if (!this.accessTokenVar) {
+            this.accessTokenVar = sessionStorage.getItem('accessToken');
         }
-        return this.accessTokenVariable;
+        return this.accessTokenVar;
     }
     set accessToken(token) {
-        this.accessTokenVariable = token;
-        if (this.accessTokenVariable) {
-            sessionStorage.setItem('accessToken', this.accessTokenVariable);
+        this.accessTokenVar = token;
+        if (this.accessTokenVar) {
+            sessionStorage.setItem('accessToken', this.accessTokenVar);
         }
         else {
             sessionStorage.removeItem('accessToken');
         }
     }
     get refreshToken() {
-        if (!this.refreshTokenVariable) {
-            this.refreshTokenVariable = sessionStorage.getItem('refreshToken');
+        if (!this.refreshTokenVar) {
+            this.refreshTokenVar = sessionStorage.getItem('refreshToken');
         }
-        return this.refreshTokenVariable;
+        return this.refreshTokenVar;
     }
     set refreshToken(token) {
-        this.refreshTokenVariable = token;
-        if (this.refreshTokenVariable) {
-            sessionStorage.setItem('refreshToken', this.refreshTokenVariable);
+        this.refreshTokenVar = token;
+        if (this.refreshTokenVar) {
+            sessionStorage.setItem('refreshToken', this.refreshTokenVar);
         }
         else {
             sessionStorage.removeItem('refreshToken');
         }
     }
-    get type() {
-        return this.typeVariable;
-    }
-    set type(type) {
-        this.typeVariable = type;
-    }
-    init(urlParams) {
-        console.log('[AuthApi]', 'init');
-        // const urlParams = new URLSearchParams(window.location.search);
+    init(type, urlParams) {
+        console.log('[AuthApi]', 'init', type, urlParams);
         const code = urlParams && new URLSearchParams(urlParams).get('code');
-        console.log('[AuthApi]', 'URL PARAMS', urlParams, 'CODE', code);
-        if (this.type !== CAPTCHA && code) {
+        console.log('[AuthApi]', 'CODE', code);
+        if (this.type !== AuthType.CAPTCHA && code) {
             return this.codeLogin(code);
         }
-        else if (this.type === CAPTCHA) {
+        else if (this.type === AuthType.CAPTCHA) {
             return this.captchaLogin();
         }
         else {
@@ -217,7 +213,7 @@ let AuthApi = class AuthApi {
         console.log('[AuthApi]', 'initLogin');
         return new Observable((observer) => {
             switch (this.type) {
-                case KEYCLOAK:
+                case AuthType.KEYCLOAK:
                     const keycloakParams = {
                         state: 'init'
                     };
@@ -242,7 +238,7 @@ let AuthApi = class AuthApi {
         console.log('[AuthApi]', 'codeLogin');
         return new Observable((observer) => {
             switch (this.type) {
-                case KEYCLOAK:
+                case AuthType.KEYCLOAK:
                     const keycloakParams = {
                         state: 'init',
                         code: secureCode

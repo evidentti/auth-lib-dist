@@ -55,7 +55,8 @@ var AuthService = /** @class */ (function () {
     }
     AuthService.prototype.oauth = function (params) {
         console.log('[AuthService]', 'oauth');
-        if (params.state && params.uri) {
+        if (params && params.state) {
+            params.uri = this.config.redirectUrl;
             return this.post(params);
         }
         else {
@@ -64,7 +65,8 @@ var AuthService = /** @class */ (function () {
     };
     AuthService.prototype.signicat = function (params) {
         console.log('[AuthService]', 'signicat');
-        if (params.state && params.uri) {
+        if (params && params.state) {
+            params.uri = this.config.redirectUrl;
             this.authType = AuthType.SIGNICAT;
             var body = { code: params.code, uri: params.uri, state: params.state };
             return this.post(body);
@@ -129,6 +131,13 @@ var AuthService = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(AuthService.prototype, "authTypes", {
+        get: function () {
+            return AuthType;
+        },
+        enumerable: true,
+        configurable: true
+    });
     AuthService.ctorParameters = function () { return [
         { type: HttpClient },
         { type: undefined, decorators: [{ type: Inject, args: [DCS_AUTH_CONFIG,] }] }
@@ -143,22 +152,20 @@ var AuthService = /** @class */ (function () {
     return AuthService;
 }());
 
-var KEYCLOAK = 'KEYCLOAK';
-var CAPTCHA = 'CAPTCHA';
 var AuthApi = /** @class */ (function () {
     function AuthApi(authService) {
         this.authService = authService;
         console.log('[AuthApi]', 'constructor');
-        this.type = KEYCLOAK;
+        this.type = AuthType.KEYCLOAK;
     }
     Object.defineProperty(AuthApi.prototype, "success", {
         get: function () {
-            return this.successVariable;
+            return this.successVar;
         },
         set: function (success) {
-            if (success !== this.successVariable) {
-                this.successVariable = success;
-                if (this.watchSuccessVariable) {
+            if (success !== this.successVar) {
+                this.successVar = success;
+                if (this.watchSuccessVar) {
                     this.watchSuccess.next(this.success);
                 }
             }
@@ -168,25 +175,25 @@ var AuthApi = /** @class */ (function () {
     });
     Object.defineProperty(AuthApi.prototype, "watchSuccess", {
         get: function () {
-            if (!this.watchSuccessVariable) {
-                this.watchSuccessVariable = new BehaviorSubject(this.success);
+            if (!this.watchSuccessVar) {
+                this.watchSuccessVar = new BehaviorSubject(this.success);
             }
-            return this.watchSuccessVariable;
+            return this.watchSuccessVar;
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(AuthApi.prototype, "accessToken", {
         get: function () {
-            if (!this.accessTokenVariable) {
-                this.accessTokenVariable = sessionStorage.getItem('accessToken');
+            if (!this.accessTokenVar) {
+                this.accessTokenVar = sessionStorage.getItem('accessToken');
             }
-            return this.accessTokenVariable;
+            return this.accessTokenVar;
         },
         set: function (token) {
-            this.accessTokenVariable = token;
-            if (this.accessTokenVariable) {
-                sessionStorage.setItem('accessToken', this.accessTokenVariable);
+            this.accessTokenVar = token;
+            if (this.accessTokenVar) {
+                sessionStorage.setItem('accessToken', this.accessTokenVar);
             }
             else {
                 sessionStorage.removeItem('accessToken');
@@ -197,15 +204,15 @@ var AuthApi = /** @class */ (function () {
     });
     Object.defineProperty(AuthApi.prototype, "refreshToken", {
         get: function () {
-            if (!this.refreshTokenVariable) {
-                this.refreshTokenVariable = sessionStorage.getItem('refreshToken');
+            if (!this.refreshTokenVar) {
+                this.refreshTokenVar = sessionStorage.getItem('refreshToken');
             }
-            return this.refreshTokenVariable;
+            return this.refreshTokenVar;
         },
         set: function (token) {
-            this.refreshTokenVariable = token;
-            if (this.refreshTokenVariable) {
-                sessionStorage.setItem('refreshToken', this.refreshTokenVariable);
+            this.refreshTokenVar = token;
+            if (this.refreshTokenVar) {
+                sessionStorage.setItem('refreshToken', this.refreshTokenVar);
             }
             else {
                 sessionStorage.removeItem('refreshToken');
@@ -214,25 +221,14 @@ var AuthApi = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(AuthApi.prototype, "type", {
-        get: function () {
-            return this.typeVariable;
-        },
-        set: function (type) {
-            this.typeVariable = type;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    AuthApi.prototype.init = function (urlParams) {
-        console.log('[AuthApi]', 'init');
-        // const urlParams = new URLSearchParams(window.location.search);
+    AuthApi.prototype.init = function (type, urlParams) {
+        console.log('[AuthApi]', 'init', type, urlParams);
         var code = urlParams && new URLSearchParams(urlParams).get('code');
-        console.log('[AuthApi]', 'URL PARAMS', urlParams, 'CODE', code);
-        if (this.type !== CAPTCHA && code) {
+        console.log('[AuthApi]', 'CODE', code);
+        if (this.type !== AuthType.CAPTCHA && code) {
             return this.codeLogin(code);
         }
-        else if (this.type === CAPTCHA) {
+        else if (this.type === AuthType.CAPTCHA) {
             return this.captchaLogin();
         }
         else {
@@ -244,7 +240,7 @@ var AuthApi = /** @class */ (function () {
         console.log('[AuthApi]', 'initLogin');
         return new Observable(function (observer) {
             switch (_this.type) {
-                case KEYCLOAK:
+                case AuthType.KEYCLOAK:
                     var keycloakParams = {
                         state: 'init'
                     };
@@ -270,7 +266,7 @@ var AuthApi = /** @class */ (function () {
         console.log('[AuthApi]', 'codeLogin');
         return new Observable(function (observer) {
             switch (_this.type) {
-                case KEYCLOAK:
+                case AuthType.KEYCLOAK:
                     var keycloakParams = {
                         state: 'init',
                         code: secureCode

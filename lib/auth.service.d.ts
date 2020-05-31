@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { AuthConfig } from './auth-lib.module';
-declare enum AuthType {
+export declare enum AuthType {
     KEYCLOAK = "keycloak",
     SIGNICAT = "signicat",
     VEPA = "vepa",
@@ -25,5 +25,5 @@ export declare class AuthService {
     private post;
     get authType(): AuthType;
     set authType(type: AuthType);
+    get authTypes(): typeof AuthType;
 }
-export {};
