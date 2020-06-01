@@ -17,12 +17,12 @@ export declare class AuthApi {
     private get refreshToken();
     private set refreshToken(value);
     constructor(authService: AuthService, config: AuthConfig);
-    init(type?: string, urlParams?: string, captchaToken?: string): Observable<boolean>;
-    initLogin(): Observable<boolean>;
-    codeLogin(secureCode: string): Observable<boolean>;
+    init(urlParams?: string): Observable<boolean>;
     captchaLogin(secret: string): Observable<boolean>;
     getToken(): string;
     updateToken(): Observable<string>;
     authTypes(): AuthTypes;
+    private initLogin;
+    private login;
     private handleAccessData;
 }

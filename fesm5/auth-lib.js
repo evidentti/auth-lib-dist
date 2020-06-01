@@ -164,7 +164,7 @@ var AuthApi = /** @class */ (function () {
         set: function (success) {
             if (success !== this.successVar) {
                 this.successVar = success;
-                if (this.watchSuccessVar) {
+                if (this.watchSuccessVar && this.successVar !== undefined) {
                     this.watchSuccess.next(this.success);
                 }
             }
@@ -220,73 +220,15 @@ var AuthApi = /** @class */ (function () {
         enumerable: true,
         configurable: true
     });
-    AuthApi.prototype.init = function (type, urlParams, captchaToken) {
-        console.log('[AuthApi]', 'init', type, urlParams);
-        if (type) {
-            this.type = type;
-        }
+    AuthApi.prototype.init = function (urlParams) {
+        console.log('[AuthApi]', 'init', urlParams);
         var code = urlParams && new URLSearchParams(urlParams).get('code');
-        console.log('[AuthApi]', 'CODE', code);
-        if (this.type !== this.authTypes().CAPTCHA && code) {
-            return this.codeLogin(code);
-        }
-        else if (this.type === this.authTypes().CAPTCHA) {
-            return this.captchaLogin(captchaToken);
+        if (code) {
+            return this.login(code);
         }
         else {
             return this.initLogin();
         }
-    };
-    AuthApi.prototype.initLogin = function () {
-        var _this = this;
-        console.log('[AuthApi]', 'initLogin');
-        return new Observable(function (observer) {
-            switch (_this.type) {
-                case _this.authTypes().KEYCLOAK:
-                    var keycloakParams = {
-                        state: 'init'
-                    };
-                    _this.authService.keycloak(keycloakParams).subscribe(function (accessData) {
-                        console.log('[AuthApi]', 'keycloak', 'response', accessData);
-                        if (accessData && accessData.redirect) {
-                            document.location.href = accessData.redirect;
-                        }
-                        observer.next(Boolean(accessData && accessData.redirect));
-                        observer.complete();
-                    });
-                    break;
-                default:
-                    console.log('[AuthApi]', 'unknown type');
-                    observer.next(null);
-                    observer.complete();
-                    break;
-            }
-        });
-    };
-    AuthApi.prototype.codeLogin = function (secureCode) {
-        var _this = this;
-        console.log('[AuthApi]', 'codeLogin');
-        return new Observable(function (observer) {
-            switch (_this.type) {
-                case _this.authTypes().KEYCLOAK:
-                    var keycloakParams = {
-                        state: 'init',
-                        code: secureCode
-                    };
-                    _this.authService.keycloak(keycloakParams).subscribe(function (accessData) {
-                        console.log('[AuthApi]', 'keycloak', 'response', accessData);
-                        _this.success = _this.handleAccessData(accessData);
-                        observer.next(_this.success);
-                        observer.complete();
-                    });
-                    break;
-                default:
-                    console.log('[AuthApi]', 'unknown type');
-                    observer.next(null);
-                    observer.complete();
-                    break;
-            }
-        });
     };
     AuthApi.prototype.captchaLogin = function (secret) {
         var _this = this;
@@ -322,6 +264,57 @@ var AuthApi = /** @class */ (function () {
     AuthApi.prototype.authTypes = function () {
         console.log('[AuthApi]', 'authTypes');
         return this.authService.authTypes;
+    };
+    AuthApi.prototype.initLogin = function () {
+        var _this = this;
+        console.log('[AuthApi]', 'initLogin', this.type);
+        return new Observable(function (observer) {
+            switch (_this.type) {
+                case _this.authTypes().KEYCLOAK:
+                    var keycloakParams = {
+                        state: 'init'
+                    };
+                    _this.authService.keycloak(keycloakParams).subscribe(function (accessData) {
+                        console.log('[AuthApi]', 'keycloak', 'response', accessData);
+                        if (accessData && accessData.redirect) {
+                            document.location.href = accessData.redirect;
+                        }
+                        observer.next(Boolean(accessData && accessData.redirect));
+                        observer.complete();
+                    });
+                    break;
+                default:
+                    console.log('[AuthApi]', 'unknown type');
+                    observer.next(null);
+                    observer.complete();
+                    break;
+            }
+        });
+    };
+    AuthApi.prototype.login = function (secret) {
+        var _this = this;
+        console.log('[AuthApi]', 'login', secret);
+        return new Observable(function (observer) {
+            switch (_this.type) {
+                case _this.authTypes().KEYCLOAK:
+                    var keycloakParams = {
+                        state: 'auth',
+                        code: secret
+                    };
+                    _this.authService.keycloak(keycloakParams).subscribe(function (accessData) {
+                        console.log('[AuthApi]', 'keycloak', 'response', accessData);
+                        _this.success = _this.handleAccessData(accessData);
+                        observer.next(_this.success);
+                        observer.complete();
+                    });
+                    break;
+                default:
+                    console.log('[AuthApi]', 'unknown type');
+                    observer.next(null);
+                    observer.complete();
+                    break;
+            }
+        });
     };
     AuthApi.prototype.handleAccessData = function (accessData) {
         console.log('[AuthApi]', 'handleAccessData', accessData);

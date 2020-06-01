@@ -153,7 +153,7 @@ let AuthApi = class AuthApi {
     set success(success) {
         if (success !== this.successVar) {
             this.successVar = success;
-            if (this.watchSuccessVar) {
+            if (this.watchSuccessVar && this.successVar !== undefined) {
                 this.watchSuccess.next(this.success);
             }
         }
@@ -194,71 +194,15 @@ let AuthApi = class AuthApi {
             sessionStorage.removeItem('refreshToken');
         }
     }
-    init(type, urlParams, captchaToken) {
-        console.log('[AuthApi]', 'init', type, urlParams);
-        if (type) {
-            this.type = type;
-        }
+    init(urlParams) {
+        console.log('[AuthApi]', 'init', urlParams);
         const code = urlParams && new URLSearchParams(urlParams).get('code');
-        console.log('[AuthApi]', 'CODE', code);
-        if (this.type !== this.authTypes().CAPTCHA && code) {
-            return this.codeLogin(code);
-        }
-        else if (this.type === this.authTypes().CAPTCHA) {
-            return this.captchaLogin(captchaToken);
+        if (code) {
+            return this.login(code);
         }
         else {
             return this.initLogin();
         }
-    }
-    initLogin() {
-        console.log('[AuthApi]', 'initLogin');
-        return new Observable((observer) => {
-            switch (this.type) {
-                case this.authTypes().KEYCLOAK:
-                    const keycloakParams = {
-                        state: 'init'
-                    };
-                    this.authService.keycloak(keycloakParams).subscribe((accessData) => {
-                        console.log('[AuthApi]', 'keycloak', 'response', accessData);
-                        if (accessData && accessData.redirect) {
-                            document.location.href = accessData.redirect;
-                        }
-                        observer.next(Boolean(accessData && accessData.redirect));
-                        observer.complete();
-                    });
-                    break;
-                default:
-                    console.log('[AuthApi]', 'unknown type');
-                    observer.next(null);
-                    observer.complete();
-                    break;
-            }
-        });
-    }
-    codeLogin(secureCode) {
-        console.log('[AuthApi]', 'codeLogin');
-        return new Observable((observer) => {
-            switch (this.type) {
-                case this.authTypes().KEYCLOAK:
-                    const keycloakParams = {
-                        state: 'init',
-                        code: secureCode
-                    };
-                    this.authService.keycloak(keycloakParams).subscribe((accessData) => {
-                        console.log('[AuthApi]', 'keycloak', 'response', accessData);
-                        this.success = this.handleAccessData(accessData);
-                        observer.next(this.success);
-                        observer.complete();
-                    });
-                    break;
-                default:
-                    console.log('[AuthApi]', 'unknown type');
-                    observer.next(null);
-                    observer.complete();
-                    break;
-            }
-        });
     }
     captchaLogin(secret) {
         console.log('[AuthApi]', 'captchaLogin', secret);
@@ -292,6 +236,55 @@ let AuthApi = class AuthApi {
     authTypes() {
         console.log('[AuthApi]', 'authTypes');
         return this.authService.authTypes;
+    }
+    initLogin() {
+        console.log('[AuthApi]', 'initLogin', this.type);
+        return new Observable((observer) => {
+            switch (this.type) {
+                case this.authTypes().KEYCLOAK:
+                    const keycloakParams = {
+                        state: 'init'
+                    };
+                    this.authService.keycloak(keycloakParams).subscribe((accessData) => {
+                        console.log('[AuthApi]', 'keycloak', 'response', accessData);
+                        if (accessData && accessData.redirect) {
+                            document.location.href = accessData.redirect;
+                        }
+                        observer.next(Boolean(accessData && accessData.redirect));
+                        observer.complete();
+                    });
+                    break;
+                default:
+                    console.log('[AuthApi]', 'unknown type');
+                    observer.next(null);
+                    observer.complete();
+                    break;
+            }
+        });
+    }
+    login(secret) {
+        console.log('[AuthApi]', 'login', secret);
+        return new Observable((observer) => {
+            switch (this.type) {
+                case this.authTypes().KEYCLOAK:
+                    const keycloakParams = {
+                        state: 'auth',
+                        code: secret
+                    };
+                    this.authService.keycloak(keycloakParams).subscribe((accessData) => {
+                        console.log('[AuthApi]', 'keycloak', 'response', accessData);
+                        this.success = this.handleAccessData(accessData);
+                        observer.next(this.success);
+                        observer.complete();
+                    });
+                    break;
+                default:
+                    console.log('[AuthApi]', 'unknown type');
+                    observer.next(null);
+                    observer.complete();
+                    break;
+            }
+        });
     }
     handleAccessData(accessData) {
         console.log('[AuthApi]', 'handleAccessData', accessData);
